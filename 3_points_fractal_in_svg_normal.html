@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	</head>
+	<body style= "background-color:#000000" class="w3-black">
+		
+		<script type="text/javascript">
+		
+			// global vars
+			var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg'); // canvas
+			var screenWidth = screen.width; // get width
+			var screenHeight = screen.height - 200; // get height - 200px
+			var pointN = {x:0, y:0}; // initial point
+			var iteractions = 5000; // quantity of random points to draw
+			var iteraction = 0; // current iteraction
+			
+			// triangle points
+			var pointA = {x:0, y:0};
+			var pointB = {x:0, y:0};
+			var pointC = {x:0, y:0};
+			
+			// define canvas
+			svg.setAttribute("height", screenHeight); // set screen height
+			svg.setAttribute("width", screenWidth); // set screen width
+			svg.setAttribute("shape-rendering","optimizeSpeed"); // need for speed
+			
+			// draw triangle points
+			// A
+			pointA.x = (screenWidth / 2);
+			pointA.y = (screenHeight / 4);
+			drawPoint(pointA, 5);
+			// B
+			pointB.x = (screenWidth / 4);
+			pointB.y = screenHeight - (screenHeight / 4);
+			drawPoint(pointB, 5);
+			// C
+			pointC.x = screenWidth - (screenWidth / 4);
+			pointC.y = screenHeight - (screenHeight / 4);
+			drawPoint(pointC, 5);
+			
+			// calculate random coordinates of initial point
+			// prevent point to be draw off screen
+			offScreen = 1; // off screen ?
+			while ( offScreen == 1 ) {
+				pointN.x = screenWidth - Math.floor(Math.random() * 10);
+				pointN.y = screenHeight - Math.floor(Math.random() * 10);
+				if ( pointN.x > 1 && pointN.y > 1 )	{
+					offScreen = 0;
+				}
+			}
+			
+			
+			// auxiliary functions ///////////////////////////////////////////////
+			
+			// draw the point with a style according to the attractor
+			function drawPoint(point, color) {
+				// local vars
+				var st = ""; // point style
+				var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+						circle.setAttribute("cx", point.x);
+						circle.setAttribute("cy", point.y);
+						circle.setAttribute("r", 1);
+						circle.setAttribute("id", 1);
+				switch (color) {
+					case 0:
+						st = "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:" + 4;
+						break;
+					case 1:
+						st = "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:" + 1;
+						break;
+					case 2:
+						st = "fill-opacity:1;fill:rgb(0,255,0);stroke:rgb(0,255,0);stroke-width:" + 1;
+						break;
+					case 3:
+						st = "fill-opacity:1;fill:rgb(0,0,255);stroke:rgb(0,0,255);stroke-width:" + 1;
+						break;
+					case 4:
+						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 1;
+						break;
+					case 5:
+						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 4;
+						break;						
+					default:
+						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 1;
+				}
+				circle.setAttribute("style", st);
+				svg.appendChild(circle);
+				document.body.appendChild(svg);
+			}
+			
+			
+			// calculates the mid point of the line segment and draws a point there.
+			function drawMidPoint()	{
+				// local var
+				var randomN = 0; // dice trow result
+				var diferenceN = {x:0, y:0}; // mid point
+				
+				// trow the dice
+				while ( randomN < 1 || randomN > 6) {
+					randomN = Math.floor(Math.random() * 10);
+				}
+				
+				// choose which attractor to follow
+				switch (randomN) {
+					case 1:
+					case 2:
+						// point A
+						// determine middle distance between current point and point A
+						diferenceN.x = Math.abs(pointA.x - pointN.x) / 2;
+						diferenceN.y = Math.abs(pointA.y - pointN.y) / 2;
+						if (pointN.x < pointA.x) {
+							pointN.x = pointA.x - diferenceN.x;
+						} else {
+							pointN.x = pointA.x + diferenceN.x;
+						}
+						pointN.y = pointA.y + diferenceN.y;						
+						drawPoint(pointN, 1);
+						if ((pointN.x == pointA.x) && (pointN.y == pointA.y)) {
+							alert("N = A");
+						}
+						break;
+					case 3:
+					case 4:
+						// point B
+						// determine middle distance between current point and point B
+						diferenceN.x = Math.abs(pointB.x - pointN.x) / 2;
+						diferenceN.y = Math.abs(pointB.y - pointN.y) / 2;
+						pointN.x = pointB.x + diferenceN.x;
+						pointN.y = pointB.y - diferenceN.y;						
+						drawPoint(pointN, 2);
+						if ((pointN.x == pointB.x) && (pointN.y == pointB.y)) {
+							alert("N = B");
+						}
+						break;
+					case 5:
+					case 6:
+						// point C
+						// determine middle distance between current point and point C
+						diferenceN.x = Math.abs(pointC.x - pointN.x) / 2;
+						diferenceN.y = Math.abs(pointC.y - pointN.y) / 2;
+						pointN.x = pointC.x - diferenceN.x;
+						pointN.y = pointC.y - diferenceN.y;						
+						drawPoint(pointN, 3);
+						if ((pointN.x == pointC.x) && (pointN.y == pointC.y)) {
+							alert("N = C");
+						}
+						break;
+					default:
+				}
+			}
+			
+			// iterations loop
+			function diceTrow(counter) {
+				if(iteraction <= iteractions) {
+					dTimeout = setTimeout(function() {
+						drawMidPoint();
+						document.getElementById("iteraction").innerHTML = iteraction;
+						iteraction++;
+						diceTrow(iteraction);
+					}, 0);
+				}
+			}
+			
+			////////////////////////////////////////////////////////////
+			// iterate through dice trows
+			diceTrow(iteraction);
+			
+		</script>
+		<p id="iteraction" style="color:#ffffff" ></p>
+	</body>
+</html>
