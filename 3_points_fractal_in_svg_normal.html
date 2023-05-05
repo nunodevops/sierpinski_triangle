@@ -4,110 +4,79 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
 	</head>
-	<body style= "background-color:#000000" class="w3-black">
+	<body class="w3-black">
 		
 		<script type="text/javascript">
-		
-			// global vars
-			var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg'); // canvas
-			var screenWidth = screen.width; // get width
-			var screenHeight = screen.height - 200; // get height - 200px
-			var pointN = {x:0, y:0}; // initial point
-			var iteractions = 5000; // quantity of random points to draw
-			var iteraction = 0; // current iteraction
 			
-			// triangle points
+			// global vars
+			// point draw
+			var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg'); // canvas
+			var st = ""; // point style
+			var screenWidth = screen.width - 200;
+			var screenHeight = screen.height - 400;
+			
+			// triangle point calc
 			var pointA = {x:0, y:0};
 			var pointB = {x:0, y:0};
 			var pointC = {x:0, y:0};
+			var ix = 0; // x coordinate
+			var iy = 0; // y coordinate
+			
+			
+			var min = 0; // scope min value 
+			var max = 0; // scope max value
+			
+			// points
+			var pointN = {x:0, y:0};
+			var diferenceN = {x:0, y:0};
+			var iteractions = 6000; // quantity of random points to draw
+			var iteraction = 0; // current iteraction
+			var randomN = 0; // current random number
+			
+			// configure enviroment
+			//document.getElementById("start_Button").disabled = true;
 			
 			// define canvas
-			svg.setAttribute("height", screenHeight); // set screen height
-			svg.setAttribute("width", screenWidth); // set screen width
-			svg.setAttribute("shape-rendering","optimizeSpeed"); // need for speed
+			svg.setAttribute("height", screenHeight);
+			svg.setAttribute("width", screenWidth);
+			svg.setAttribute("shape-rendering","optimizeSpeed");
 			
 			// draw triangle points
-			// A
-			pointA.x = (screenWidth / 2);
-			pointA.y = (screenHeight / 4);
-			drawPoint(pointA, 5);
-			// B
-			pointB.x = (screenWidth / 4);
-			pointB.y = screenHeight - (screenHeight / 4);
-			drawPoint(pointB, 5);
-			// C
-			pointC.x = screenWidth - (screenWidth / 4);
-			pointC.y = screenHeight - (screenHeight / 4);
-			drawPoint(pointC, 5);
+			pointA = {x:screenWidth / 2, y:0};
+			pointB = {x:0, y:screenHeight};
+			pointC = {x:screenWidth, y:screenHeight};
 			
-			// calculate random coordinates of initial point
-			// prevent point to be draw off screen
-			offScreen = 1; // off screen ?
-			while ( offScreen == 1 ) {
-				pointN.x = screenWidth - Math.floor(Math.random() * 10);
-				pointN.y = screenHeight - Math.floor(Math.random() * 10);
-				if ( pointN.x > 1 && pointN.y > 1 )	{
-					offScreen = 0;
+
+			// define initial point
+			pointN.x = Math.floor(pointB.x + ((pointC.x - pointB.x) / 2));
+			pointN.y = Math.floor(pointA.y + ((pointB.y - pointA.y) / 2));
+			drawPoint(pointN, 4)
+			
+			// draw points loop
+			function triangle(counter){
+				if(iteraction <= iteractions) {
+					dTimeout = setTimeout(function(){
+						draw();
+						document.getElementById("iteraction").innerHTML = iteraction;
+						iteraction++;
+						triangle(iteraction);
+					}, 0);
 				}
 			}
-			
-			
-			// auxiliary functions ///////////////////////////////////////////////
-			
-			// draw the point with a style according to the attractor
-			function drawPoint(point, color) {
-				// local vars
-				var st = ""; // point style
-				var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-						circle.setAttribute("cx", point.x);
-						circle.setAttribute("cy", point.y);
-						circle.setAttribute("r", 1);
-						circle.setAttribute("id", 1);
-				switch (color) {
-					case 0:
-						st = "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:" + 4;
-						break;
-					case 1:
-						st = "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:" + 1;
-						break;
-					case 2:
-						st = "fill-opacity:1;fill:rgb(0,255,0);stroke:rgb(0,255,0);stroke-width:" + 1;
-						break;
-					case 3:
-						st = "fill-opacity:1;fill:rgb(0,0,255);stroke:rgb(0,0,255);stroke-width:" + 1;
-						break;
-					case 4:
-						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 1;
-						break;
-					case 5:
-						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 4;
-						break;						
-					default:
-						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 1;
-				}
-				circle.setAttribute("style", st);
-				svg.appendChild(circle);
-				document.body.appendChild(svg);
-			}
-			
-			
-			// calculates the mid point of the line segment and draws a point there.
-			function drawMidPoint()	{
-				// local var
-				var randomN = 0; // dice trow result
-				var diferenceN = {x:0, y:0}; // mid point
-				
-				// trow the dice
+
+			svg.setAttribute("shape-rendering","optimizeSpeed");
+			triangle(iteraction);
+
+			function draw(){
+				randomN = 0;
 				while ( randomN < 1 || randomN > 6) {
 					randomN = Math.floor(Math.random() * 10);
 				}
-				
-				// choose which attractor to follow
 				switch (randomN) {
 					case 1:
 					case 2:
-						// point A
-						// determine middle distance between current point and point A
+						// triangle point 1
+						// determine midle distance between point and triangle point 1
 						diferenceN.x = Math.abs(pointA.x - pointN.x) / 2;
 						diferenceN.y = Math.abs(pointA.y - pointN.y) / 2;
 						if (pointN.x < pointA.x) {
@@ -123,8 +92,8 @@
 						break;
 					case 3:
 					case 4:
-						// point B
-						// determine middle distance between current point and point B
+						// triangle point 2
+						// determine midle distance between point and triangle point 2
 						diferenceN.x = Math.abs(pointB.x - pointN.x) / 2;
 						diferenceN.y = Math.abs(pointB.y - pointN.y) / 2;
 						pointN.x = pointB.x + diferenceN.x;
@@ -136,8 +105,8 @@
 						break;
 					case 5:
 					case 6:
-						// point C
-						// determine middle distance between current point and point C
+						// triangle point 3
+						// determine midle distance between point and triangle point 3
 						diferenceN.x = Math.abs(pointC.x - pointN.x) / 2;
 						diferenceN.y = Math.abs(pointC.y - pointN.y) / 2;
 						pointN.x = pointC.x - diferenceN.x;
@@ -151,23 +120,71 @@
 				}
 			}
 			
-			// iterations loop
-			function diceTrow(counter) {
-				if(iteraction <= iteractions) {
-					dTimeout = setTimeout(function() {
-						drawMidPoint();
-						document.getElementById("iteraction").innerHTML = iteraction;
-						iteraction++;
-						diceTrow(iteraction);
-					}, 0);
+	
+			// functions
+			function drawTrianglePoint(minScopeX, maxScopeX, minScopeY, maxScopeY) {
+				// local vars
+				var pointT = {x:0, y:0}; //first point
+				
+				ix = maxScopeX + 1;
+				while (ix > maxScopeX || ix < minScopeX) {
+					ix = Math.floor((Math.random() * 1000) + minScopeX - 1);
 				}
+				pointT.x = ix;
+				//
+				iy = maxScopeY + 1;
+				while (iy > maxScopeY || iy < minScopeY) {
+					iy = Math.floor((Math.random() * 1000) + minScopeY - 1);
+				}
+				pointT.y = iy;
+				drawPoint(pointT, 0);
+				//soundf = ix;
+				//playSound(soundf, .05)
+				return pointT;
 			}
 			
-			////////////////////////////////////////////////////////////
-			// iterate through dice trows
-			diceTrow(iteraction);
+			function drawPoint(point, color){
+				var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+						circle.setAttribute("cx", point.x);
+						circle.setAttribute("cy", point.y);
+						circle.setAttribute("r", 1);
+						circle.setAttribute("id", 1);
+				switch (color) {
+					case 0:
+						st = "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:" + 4;
+						break;
+					case 1:
+						st = "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:" + 1;
+						break;
+					case 2:
+						st = "fill-opacity:1;fill:rgb(0,0,255);stroke:rgb(0,0,255);stroke-width:" + 1;
+						break;
+					case 3:
+						st = "fill-opacity:1;fill:rgb(0,255,0);stroke:rgb(0,255,0);stroke-width:" + 1;
+						break;
+					case 4:
+						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 1;
+						break;
+					default:
+						st = "fill-opacity:1;fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:" + 1;
+				}
+				circle.setAttribute("style", st);
+				svg.appendChild(circle);
+				document.body.appendChild(svg);
+			}
 			
+			function playSound(frequency, duration){
+				context = new AudioContext;
+				oscillator = context.createOscillator();
+				oscillator.frequency.value = frequency;
+
+				oscillator.connect(context.destination);
+
+				oscillator.start(0);
+				oscillator.stop(duration);	
+				context.close();
+			}
 		</script>
-		<p id="iteraction" style="color:#ffffff" ></p>
+		<p id="iteraction"></p>
 	</body>
 </html>
